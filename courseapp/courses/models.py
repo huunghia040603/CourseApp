@@ -22,6 +22,9 @@ class Category(BaseModel):
     def __str__(self):
         return self.name
 
+class Tag(BaseModel):
+    name = models.CharField(max_length=50,unique=True)
+
 class Course(BaseModel):
     name = models.CharField(max_length=255)
     description = RichTextField()
@@ -30,3 +33,29 @@ class Course(BaseModel):
 
     def __str__(self):
         return self.name
+
+
+class Lesson(BaseModel):
+    subject = models.CharField(max_length=255)
+    content = RichTextField()
+    course = models.ForeignKey(Course,on_delete=models.CASCADE)
+    image = CloudinaryField()
+    tags=models.ManyToManyField(Tag,null=True,blank=True)
+
+    def __str__(self):
+        return self.subject
+
+class Interaction(BaseModel):
+    lesson = models.ForeignKey(Lesson,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+class Comment(Interaction):
+    content= models.CharField(max_length=255)
+
+
+class Like(Interaction):
+    class Meta:
+        unique_together = ('lesson','user')
